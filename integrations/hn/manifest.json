@@ -1,0 +1,12 @@
+{
+  "name": "hn",
+  "description": "Fetch Hacker News posts, comments, and linked articles for analysis and comment drafting.",
+  "type": "python-tool",
+  "entry": "integrations.hn.cli",
+  "commands": [
+    {"usage": "post <item_id_or_url>", "description": "Fetch post metadata (title, url, score, author, text) and top comments (up to 10, sorted by reply count)"},
+    {"usage": "article <url>", "description": "Fetch and extract readable text from a URL (strips HTML, truncates to 6000 chars)"}
+  ],
+  "env_required": [],
+  "prompt_doc": "Hacker News reader via `python3 integrations/hn/cli.py <cmd>`. Commands: `post <item_id_or_url>` (fetches HN post + top comments), `article <url>` (fetches + extracts readable text from linked article). Use `post` first to get context, then `article` on the linked URL if it's not a text post. Output is pre-formatted for token efficiency."
+}

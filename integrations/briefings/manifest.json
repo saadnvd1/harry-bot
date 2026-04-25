@@ -1,0 +1,14 @@
+{
+  "name": "briefings",
+  "description": "Read pre-generated CNN and HN daily briefings.",
+  "type": "python-tool",
+  "entry": "integrations.briefings.cli",
+  "commands": [
+    {"usage": "today", "description": "Show both CNN and HN briefings for today (zero tokens — just dumps the file)"},
+    {"usage": "cnn [YYYY-MM-DD]", "description": "Show CNN briefing for a date (default: today)"},
+    {"usage": "hn [YYYY-MM-DD]", "description": "Show HN briefing for a date (default: today)"},
+    {"usage": "list [N]", "description": "List available briefing dates (default: last 7)"}
+  ],
+  "env_required": [],
+  "prompt_doc": "Daily news briefings via `python3 integrations/briefings/cli.py <cmd>`. Commands: `today` (both CNN + HN), `cnn [date]`, `hn [date]`, `list [N]`. These are pre-generated markdown files — just read and send, no analysis needed. If the user asks about a specific story or wants to discuss something from the briefing, read the briefing first via CLI then answer."
+}

@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/
+scripts/posts.json
+venv/
+harry.log
+harry.log.*
+worker.log
+worker.log.*
+/data/

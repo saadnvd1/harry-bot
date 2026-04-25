@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1b26;
+    color: #a9b1d6;
+    font-family: "SF Mono", "Menlo", "Monaco", monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    width: 1280px;
+    height: 720px;
+    overflow: hidden;
+  }
+  .window {
+    background: #1a1b26;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 1280px;
+    height: 720px;
+    display: flex;
+    flex-direction: column;
+  }
+  .titlebar {
+    background: #24283b;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #f7768e; }
+  .dot-yellow { background: #e0af68; }
+  .dot-green { background: #9ece6a; }
+  .titlebar-text { color: #565f89; font-size: 12px; margin-left: 8px; }
+  .content { padding: 16px 24px; overflow: hidden; flex: 1; }
+  pre { font-family: inherit; font-size: inherit; line-height: inherit; }
+
+  .prompt { color: #7aa2f7; }
+  .green { color: #9ece6a; }
+  .red { color: #f7768e; }
+  .yellow { color: #e0af68; }
+  .cyan { color: #7dcfff; }
+  .magenta { color: #bb9af7; }
+  .white { color: #c0caf5; }
+  .dim { color: #565f89; }
+  .bold { font-weight: bold; }
+
+  .chat { display: flex; flex-direction: column; gap: 12px; }
+  .msg { max-width: 85%; }
+  .msg-user { align-self: flex-end; }
+  .msg-harry { align-self: flex-start; }
+  .bubble {
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-family: -apple-system, "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .bubble-user {
+    background: #3d59a1;
+    color: #c0caf5;
+    border-bottom-right-radius: 4px;
+  }
+  .bubble-harry {
+    background: #24283b;
+    color: #a9b1d6;
+    border-bottom-left-radius: 4px;
+  }
+  .tool {
+    font-family: "SF Mono", "Menlo", monospace;
+    font-size: 11px;
+    color: #565f89;
+    padding: 4px 0;
+  }
+  .tool-icon { color: #e0af68; }
+  .label {
+    font-family: -apple-system, "Helvetica Neue", sans-serif;
+    font-size: 11px;
+    color: #565f89;
+    margin-bottom: 2px;
+  }
+  .header {
+    text-align: center;
+    padding: 8px 0 16px;
+    font-family: -apple-system, "Helvetica Neue", sans-serif;
+  }
+  .header-name { color: #c0caf5; font-size: 15px; font-weight: 600; }
+  .header-sub { color: #565f89; font-size: 12px; margin-top: 2px; }
+  .model-tag {
+    display: inline-block;
+    font-family: "SF Mono", monospace;
+    font-size: 10px;
+    color: #565f89;
+    background: #1a1b26;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="titlebar">
+    <div class="dot dot-red"></div>
+    <div class="dot dot-yellow"></div>
+    <div class="dot dot-green"></div>
+    <span class="titlebar-text">Telegram — Harry</span>
+  </div>
+  <div class="content">
+    <div class="header">
+      <div class="header-name">Harry</div>
+      <div class="header-sub">personal assistant</div>
+    </div>
+    <div class="chat">
+      <div class="msg msg-user">
+        <div class="bubble bubble-user">what's the status of my services?</div>
+      </div>
+      <div class="msg msg-harry">
+        <div class="tool"><span class="tool-icon">&#x1F527;</span> Bash: <span class="dim">sm list</span></div>
+        <div class="bubble bubble-harry">All 3 services running:<br><br><span style="font-family: monospace; font-size: 12px;">harry-bot&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="green">running</span>&nbsp;&nbsp;2h 14m<br>harry-worker&nbsp;&nbsp;&nbsp;<span class="green">running</span>&nbsp;&nbsp;2h 14m<br>harry-worker-2&nbsp;<span class="green">running</span>&nbsp;&nbsp;2h 14m</span></div>
+        <div class="model-tag">ollama &middot; qwen2.5:3b &middot; free</div>
+      </div>
+      <div class="msg msg-user">
+        <div class="bubble bubble-user">I've been thinking about whether to split the auth service into its own repo. the codebase is getting big and deploys are slow</div>
+      </div>
+      <div class="msg msg-harry">
+        <div class="tool"><span class="tool-icon">&#x1F527;</span> Bash: <span class="dim">cd /opt/services/webapp && git log --oneline -5</span></div>
+        <div class="tool"><span class="tool-icon">&#x1F527;</span> Bash: <span class="dim">wc -l src/auth/**/*.ts</span></div>
+        <div class="bubble bubble-harry">Auth is ~2400 lines across 14 files — real mass but not unmanageable. Your last 5 commits are all auth-related though, so it's clearly the active surface.<br><br>I'd split it. Not because of size — because of deploy coupling. Right now a typo in a landing page CSS file triggers a full rebuild that blocks auth deploys. Separate repo = independent deploy pipeline = you ship auth fixes in 30 seconds instead of waiting on a 4-minute build.<br><br>Start with a git subtree split. Keeps history.</div>
+        <div class="model-tag">claude &middot; opus &middot; complex</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

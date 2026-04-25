@@ -1,0 +1,16 @@
+{
+  "name": "gmail",
+  "description": "Read Gmail via IMAP (app-password auth). Read-only for now.",
+  "type": "python-tool",
+  "entry": "integrations.gmail.cli",
+  "commands": [
+    {"usage": "list --unread [--limit N]", "description": "List recent unread emails (default limit 10)"},
+    {"usage": "list --today", "description": "List today's emails"},
+    {"usage": "list --from <sender>", "description": "List recent emails from a specific sender substring"},
+    {"usage": "search <query>", "description": "Search (Gmail search syntax, e.g. 'from:jane', 'subject:invoice')"},
+    {"usage": "read <id>", "description": "Fetch full body of email by ID (from list output)"},
+    {"usage": "count --unread", "description": "Count unread in inbox"}
+  ],
+  "env_required": ["GMAIL_USER", "GMAIL_APP_PASSWORD"],
+  "prompt_doc": "Gmail read-only via `python3 integrations/gmail/cli.py <cmd>`. Commands: `list --unread [--limit N]`, `list --today`, `list --from <name>`, `search '<gmail-query>'`, `read <id>`, `count --unread`. Output is pre-summarized one-line-per-msg. Use `read <id>` only when user asks for full body — saves tokens."
+}

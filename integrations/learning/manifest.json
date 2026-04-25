@@ -1,0 +1,14 @@
+{
+  "name": "learning",
+  "description": "Personal learning knowledge base with mentor personas. Topics: investing (Warren Buffett), real-estate (Grant Cardone).",
+  "type": "python-tool",
+  "entry": "integrations.learning.cli",
+  "commands": [
+    {"usage": "topics", "description": "List all learning topics with stats (notes, wiki articles, curriculum progress, open questions)"},
+    {"usage": "note <topic> <content>", "description": "Quick-capture a note to a topic's daily notes file"},
+    {"usage": "baseline <topic>", "description": "Show a topic's baseline knowledge and mentor persona"},
+    {"usage": "curriculum <topic>", "description": "Show a topic's learning curriculum with progress"}
+  ],
+  "env_required": [],
+  "prompt_doc": "Learning knowledge base via `python3 integrations/learning/cli.py <cmd>`. Commands: `topics` (list all topics + stats), `note <topic> <content>` (quick-capture), `baseline <topic>` (show knowledge level + mentor), `curriculum <topic>` (show learning path + progress). For interactive learning sessions or mentor Q&A, use the /learn skill instead."
+}
