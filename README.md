@@ -40,7 +40,7 @@ Then `./start.sh` runs everything in one process. `Ctrl+C` stops it.
 
 ### Prerequisites
 
-- Python 3.11+ (setup auto-detects the right version via pyenv/homebrew)
+- Python 3.11–3.13 (setup auto-detects the right version via pyenv/homebrew; 3.14+ not yet supported)
 - [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) — `claude` command available in PATH
 - A Telegram account
 

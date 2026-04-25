@@ -31,6 +31,9 @@ if [ ! -f "$DIR/.env" ]; then
     exit 1
 fi
 
+# Read bot username from .env for display
+BOT_USERNAME=$(grep '^BOT_USERNAME=' "$DIR/.env" 2>/dev/null | cut -d= -f2)
+
 PIDS=()
 NAMES=()
 
@@ -76,21 +79,23 @@ done
 
 echo ""
 echo "Harry is running. Ctrl+C to stop."
+if [ -n "$BOT_USERNAME" ]; then
+    echo "Message him: https://t.me/$BOT_USERNAME"
+fi
 echo "Logs: tail -f $LOG"
 echo ""
 
-# Wait for any child to exit
-wait -n 2>/dev/null || true
-
-# If we get here, something died
-echo ""
-echo "⚠  A process exited unexpectedly:"
-for idx in "${!PIDS[@]}"; do
-    pid="${PIDS[$idx]}"
-    name="${NAMES[$idx]}"
-    if ! kill -0 "$pid" 2>/dev/null; then
-        echo "  ✗ $name (PID $pid) died"
-    fi
+# Monitor children — exit if any die
+while true; do
+    for idx in "${!PIDS[@]}"; do
+        pid="${PIDS[$idx]}"
+        name="${NAMES[$idx]}"
+        if ! kill -0 "$pid" 2>/dev/null; then
+            echo ""
+            echo "⚠  $name (PID $pid) exited unexpectedly."
+            echo "Check logs: tail -20 $LOG"
+            exit 1
+        fi
+    done
+    sleep 5
 done
-echo ""
-echo "Check logs: tail -20 $LOG"

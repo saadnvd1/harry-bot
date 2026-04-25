@@ -49,8 +49,15 @@ def get_system_prompt(persona_name: str | None = None) -> str:
     """Build the full system prompt at invocation time. Includes integrations
     whose env vars are configured; silently omits the rest.
     When persona_name is set, appends the persona's domain prompt + user data."""
-    runtime_header = f"[Runtime: host={socket.gethostname()}. Local commands run locally — do not ssh to this host.]\n\n"
-    prompt = runtime_header + BASE_PROMPT + get_prompt_addendum()
+    from config import Config
+    _cfg = Config()
+    vault = _cfg.VAULT_PATH.resolve()
+    runtime_header = (
+        f"[Runtime: host={socket.gethostname()}. Local commands run locally — do not ssh to this host.]\n"
+        f"[Vault path: {vault}. ALL user data lives here — memories, conversations, about, journal. "
+        f"Do NOT read files outside this path for personal info.]\n\n"
+    )
+    prompt = runtime_header + BASE_PROMPT.replace("$VAULT_PATH", str(vault)) + get_prompt_addendum()
     if persona_name:
         from brain.personas import get_persona
         persona = get_persona(persona_name)

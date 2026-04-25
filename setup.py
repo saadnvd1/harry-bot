@@ -7,11 +7,21 @@ import subprocess
 import sys
 from pathlib import Path
 
-# ── Auto-find Python 3.11+ ─────────────────────────────────────────────────
-# If the current interpreter is too old, try to find a newer one and re-exec.
+# ── Auto-find Python 3.11–3.13 ─────────────────────────────────────────────
+# PTB 21.x uses asyncio.get_event_loop() which Python 3.14 removed.
+# Cap at 3.13 until PTB ships a fix.
 
-if sys.version_info < (3, 11) and not os.environ.get("_HARRY_SETUP_NO_REEXEC"):
-    for candidate in ("python3.14", "python3.13", "python3.12", "python3.11"):
+PYTHON_MIN = (3, 11)
+PYTHON_MAX = (3, 13)
+
+_need_reexec = (
+    not os.environ.get("_HARRY_SETUP_NO_REEXEC")
+    and (sys.version_info < PYTHON_MIN or sys.version_info[:2] > PYTHON_MAX)
+)
+
+if _need_reexec:
+    # Prefer highest compatible version
+    for candidate in ("python3.13", "python3.12", "python3.11"):
         found = shutil.which(candidate)
         if found:
             os.environ["_HARRY_SETUP_NO_REEXEC"] = "1"
@@ -24,17 +34,21 @@ if sys.version_info < (3, 11) and not os.environ.get("_HARRY_SETUP_NO_REEXEC"):
         )
         for line in sorted(result.stdout.strip().splitlines(), reverse=True):
             ver = line.strip()
-            if any(ver.startswith(f"3.{v}") for v in range(11, 20)):
-                pyenv_root = subprocess.run(
-                    [pyenv, "root"], capture_output=True, text=True
-                ).stdout.strip()
-                pybin = os.path.join(pyenv_root, "versions", ver, "bin", "python3")
-                if os.path.isfile(pybin):
-                    os.environ["_HARRY_SETUP_NO_REEXEC"] = "1"
-                    os.execvp(pybin, [pybin] + sys.argv)
-                break
-    print(f"\033[38;5;204m✗\033[0m Python {sys.version_info.major}.{sys.version_info.minor} detected — need 3.11+")
-    print(f"  Install via: brew install python@3.12  or  pyenv install 3.12")
+            parts = ver.split(".")
+            if len(parts) >= 2:
+                minor = int(parts[1])
+                if PYTHON_MIN[1] <= minor <= PYTHON_MAX[1]:
+                    pyenv_root = subprocess.run(
+                        [pyenv, "root"], capture_output=True, text=True
+                    ).stdout.strip()
+                    pybin = os.path.join(pyenv_root, "versions", ver, "bin", "python3")
+                    if os.path.isfile(pybin):
+                        os.environ["_HARRY_SETUP_NO_REEXEC"] = "1"
+                        os.execvp(pybin, [pybin] + sys.argv)
+                    break
+    v = sys.version_info
+    print(f"\033[38;5;204m✗\033[0m Python {v.major}.{v.minor} detected — need 3.11–3.13")
+    print(f"  Install via: brew install python@3.13  or  pyenv install 3.13")
     sys.exit(1)
 
 # ── Colors ──────────────────────────────────────────────────────────────────
@@ -141,11 +155,14 @@ def check_prerequisites():
 
     # Python version
     v = sys.version_info
-    if v >= (3, 11):
+    if PYTHON_MIN <= v[:2] <= PYTHON_MAX:
         success(f"Python {v.major}.{v.minor}.{v.micro} ({sys.executable})")
+    elif v[:2] > PYTHON_MAX:
+        fail(f"Python {v.major}.{v.minor} — too new (max 3.{PYTHON_MAX[1]})")
+        info("Install via: brew install python@3.13  or  pyenv install 3.13")
     else:
         fail(f"Python {v.major}.{v.minor} — need 3.11+")
-        info("Install via: brew install python@3.12  or  pyenv install 3.12")
+        info("Install via: brew install python@3.13  or  pyenv install 3.13")
         ok = False
 
     # Claude CLI
@@ -237,6 +254,11 @@ def configure_telegram():
     token = ask("Paste your bot token", secret=True)
     success("Bot token saved")
 
+    print()
+    bot_username = ask("Bot username (the one ending in 'bot')", required=True)
+    bot_username = bot_username.lstrip("@")
+    success(f"Got it — @{bot_username}")
+
     # Step B: User ID
     clear()
     banner()
@@ -268,7 +290,7 @@ def configure_telegram():
     name = ask("Your name", default="User")
 
     divider()
-    return {"TELEGRAM_TOKEN": token, "TELEGRAM_USER_ID": user_id, "OWNER_NAME": name}
+    return {"TELEGRAM_TOKEN": token, "TELEGRAM_USER_ID": user_id, "OWNER_NAME": name, "BOT_USERNAME": bot_username}
 
 
 def configure_vault():
@@ -373,7 +395,7 @@ def write_config(config):
     lines.append("")
 
     sections = {
-        "Telegram": ["TELEGRAM_TOKEN", "TELEGRAM_USER_ID", "OWNER_NAME"],
+        "Telegram": ["TELEGRAM_TOKEN", "TELEGRAM_USER_ID", "OWNER_NAME", "BOT_USERNAME"],
         "Vault": ["VAULT_PATH"],
         "Schedule": ["MORNING_BRIEFING_HOUR", "TIMEZONE"],
         "Apple Bridge": ["MAC_IP", "MAC_USER", "APPLE_BRIDGE_URL", "APPLE_BRIDGE_TOKEN"],
@@ -416,13 +438,22 @@ def write_config(config):
     divider()
 
     # Final instructions
+    bot_username = config.get("BOT_USERNAME", "")
+    bot_link = f"https://t.me/{bot_username}" if bot_username else "your bot in Telegram"
+    bot_display = f"@{bot_username}" if bot_username else "your bot"
+
     print(f"""  {BOLD}{GREEN}Setup complete!{RESET}
 
   {BOLD}To start Harry:{RESET}
 
   {CYAN}./start.sh{RESET}
 
-  {GRAY}Ctrl+C to stop. For parallel workers: ./start.sh --workers 2{RESET}
+  {BOLD}Then message {bot_display} on Telegram:{RESET}
+
+  {CYAN}{bot_link}{RESET}
+
+  {GRAY}Send /start to say hello, or just type a message.
+  Ctrl+C in the terminal to stop Harry.{RESET}
 
   {BOLD}Customize Harry:{RESET}
 
